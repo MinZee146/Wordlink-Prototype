@@ -64,12 +64,12 @@ public class Dictionary : Singleton<Dictionary>
             }
             else
             {
-                Debug.LogWarning("No definition found.");
+                Debug.Log("No definition found.");
             }
         }
         else
         {
-            Debug.LogError($"Error: {request.error}");
+            Debug.Log("No definition found.");
         }
     }
 
