@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -26,7 +28,7 @@ public class GameManager : Singleton<GameManager>
         _opponentScore.text = "0";
         _turn.text = "your turn";
         _usedWords.Clear();
-        _lastWord.text = Dictionary.Instance.GetRandomWord();
+        Dictionary.Instance.GetRandomWord(_lastWord);
     }
 
     public void SubmitWord()
@@ -59,8 +61,7 @@ public class GameManager : Singleton<GameManager>
         _lastWord.text = inputWord;
         _wordInput.text = "";
         _playerScore.text = (int.Parse(_playerScore.text) + Dictionary.Instance.CalculateScore(inputWord)).ToString();
-
-        ComputerTurn();
+        StartCoroutine(ComputerTurn());
     }
 
     private bool MatchesLastPart(string input, string lastWord)
@@ -74,13 +75,14 @@ public class GameManager : Singleton<GameManager>
         return false;
     }
 
-    public void ComputerTurn()
+    private IEnumerator ComputerTurn()
     {
         _turn.text = "opponent turn";
         var lastWord = _lastWord.text;
 
         string computerWord = null;
         var maxAttempts = lastWord.Length;
+        var wordFound = false;
 
         for (var i = 0; i < maxAttempts; i++)
         {
@@ -89,11 +91,17 @@ public class GameManager : Singleton<GameManager>
 
             if (computerWord != null && !_usedWords.Contains(computerWord))
             {
-                _lastWord.text = computerWord;
-                _usedWords.Add(computerWord);
-                _opponentScore.text = (int.Parse(_opponentScore.text) + Dictionary.Instance.CalculateScore(computerWord)).ToString();
-                _turn.text = "your turn";
-                return;
+                yield return StartCoroutine(Dictionary.Instance.CheckForDefinition(computerWord, () =>
+                {
+                    _lastWord.text = computerWord;
+                    _usedWords.Add(computerWord);
+                    _opponentScore.text = (int.Parse(_opponentScore.text) + Dictionary.Instance.CalculateScore(computerWord)).ToString();
+                    _turn.text = "your turn";
+                    wordFound = true;
+                }));
+
+                if (wordFound)
+                    yield break;
             }
         }
 

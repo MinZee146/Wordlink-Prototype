@@ -1801,7 +1801,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1570545649}
         m_TargetAssemblyTypeName: Dictionary, Assembly-CSharp
-        m_MethodName: GetWordDefinition
+        m_MethodName: GetDefinition
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2238,7 +2238,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dc8e45df89df1241bc99ccdf9e63efa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wordToCheck: {fileID: 1946009562}
   _definition: {fileID: 53375804}
 --- !u!4 &1570545650
 Transform:
@@ -2824,7 +2823,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: this is a word
+  m_text: if this does not change, press replay
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

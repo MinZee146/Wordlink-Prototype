@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -38,17 +39,21 @@ public class WordDataList
 
 public class Dictionary : Singleton<Dictionary>
 {
-    [SerializeField] private TextMeshProUGUI _wordToCheck, _definition;
+    [SerializeField] private TextMeshProUGUI _definition;
 
     private HashSet<string> _words = new();
     private TextAsset _dictText;
+    private string _currentDefinition;
 
-    public void GetWordDefinition()
+    public void GetDefinition()
     {
-        StartCoroutine(GetDefinition(_wordToCheck.text));
+        if (_currentDefinition != null)
+        {
+            _definition.text = _currentDefinition;
+        }
     }
 
-    private IEnumerator GetDefinition(string word)
+    public IEnumerator CheckForDefinition(string word, Action action)
     {
         var request = UnityWebRequest.Get("https://api.dictionaryapi.dev/api/v2/entries/en/" + word);
         yield return request.SendWebRequest();
@@ -60,16 +65,9 @@ public class Dictionary : Singleton<Dictionary>
             if (wordDataList.meanings.Length > 0 && wordDataList.meanings[0].meanings.Length > 0)
             {
                 var definition = wordDataList.meanings[0].meanings[0].definitions[0].definition;
-                _definition.text = $"Definition: {definition}";
+                _currentDefinition = definition;
+                action.Invoke();
             }
-            else
-            {
-                Debug.Log("No definition found.");
-            }
-        }
-        else
-        {
-            Debug.Log("No definition found.");
         }
     }
 
@@ -94,11 +92,13 @@ public class Dictionary : Singleton<Dictionary>
         return _words.Contains(word);
     }
 
-    public string GetRandomWord()
+    public void GetRandomWord(TextMeshProUGUI text)
     {
-        if (_words.Count == 0) return null;
-
-        return _words.ElementAt(UnityEngine.Random.Range(0, _words.Count));
+        var randomWord = _words.ElementAt(UnityEngine.Random.Range(0, _words.Count));
+        StartCoroutine(CheckForDefinition(randomWord, () =>
+        {
+            text.text = randomWord;
+        }));
     }
 
     public void GetWordWithPrefix(string prefix)
