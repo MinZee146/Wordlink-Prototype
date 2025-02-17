@@ -1,13 +1,77 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
+
+[System.Serializable]
+public class Meaning
+{
+    public string partOfSpeech;
+    public Definition[] definitions;
+}
+
+[System.Serializable]
+public class Definition
+{
+    public string definition;
+    public string example;
+    public string[] synonyms;
+    public string[] antonyms;
+}
+
+[System.Serializable]
+public class WordData
+{
+    public string word;
+    public string phonetic;
+    public Meaning[] meanings;
+}
+
+[System.Serializable]
+public class WordDataList
+{
+    public WordData[] meanings;
+}
 
 public class Dictionary : Singleton<Dictionary>
 {
+    [SerializeField] private TextMeshProUGUI _wordToCheck, _definition;
+
     private HashSet<string> _words = new();
     private TextAsset _dictText;
+
+    public void GetWordDefinition()
+    {
+        StartCoroutine(GetDefinition(_wordToCheck.text));
+    }
+
+    private IEnumerator GetDefinition(string word)
+    {
+        var request = UnityWebRequest.Get("https://api.dictionaryapi.dev/api/v2/entries/en/" + word);
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            var wordDataList = JsonUtility.FromJson<WordDataList>("{\"meanings\":" + request.downloadHandler.text + "}");
+
+            if (wordDataList.meanings.Length > 0 && wordDataList.meanings[0].meanings.Length > 0)
+            {
+                var definition = wordDataList.meanings[0].meanings[0].definitions[0].definition;
+                _definition.text = $"Definition: {definition}";
+            }
+            else
+            {
+                Debug.LogWarning("No definition found.");
+            }
+        }
+        else
+        {
+            Debug.LogError($"Error: {request.error}");
+        }
+    }
 
     public void LoadDictionary()
     {
@@ -86,6 +150,9 @@ public class Dictionary : Singleton<Dictionary>
             }
         }
 
-        return score*word.Length;
+        return score * word.Length;
     }
+
+
 }
+
