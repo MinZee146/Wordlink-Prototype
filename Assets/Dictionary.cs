@@ -7,14 +7,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 
-[System.Serializable]
+[Serializable]
 public class Meaning
 {
     public string partOfSpeech;
     public Definition[] definitions;
 }
 
-[System.Serializable]
+[Serializable]
 public class Definition
 {
     public string definition;
@@ -23,7 +23,7 @@ public class Definition
     public string[] antonyms;
 }
 
-[System.Serializable]
+[Serializable]
 public class WordData
 {
     public string word;
@@ -31,7 +31,7 @@ public class WordData
     public Meaning[] meanings;
 }
 
-[System.Serializable]
+[Serializable]
 public class WordDataList
 {
     public WordData[] meanings;
@@ -51,6 +51,11 @@ public class Dictionary : Singleton<Dictionary>
         {
             _definition.text = _currentDefinition;
         }
+    }
+
+    public void ClearDefinition()
+    {
+        _definition.text = "";
     }
 
     public IEnumerator CheckForDefinition(string word, Action action)
@@ -152,7 +157,5 @@ public class Dictionary : Singleton<Dictionary>
 
         return score * word.Length;
     }
-
-
 }
 

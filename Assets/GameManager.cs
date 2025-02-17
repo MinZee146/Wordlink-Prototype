@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -61,6 +60,8 @@ public class GameManager : Singleton<GameManager>
         _lastWord.text = inputWord;
         _wordInput.text = "";
         _playerScore.text = (int.Parse(_playerScore.text) + Dictionary.Instance.CalculateScore(inputWord)).ToString();
+        Dictionary.Instance.ClearDefinition();
+
         StartCoroutine(ComputerTurn());
     }
 
